@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upload Page</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding: 50px;
+        background-color: #f3f3f3;
+      }
+
+      .upload-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        border: 1px solid #ccc;
+        background: white;
+        display: inline-block;
+        border-radius: 8px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      .upload-container h1 {
+        margin-bottom: 20px;
+        color: #333;
+      }
+
+      .upload-container button {
+        display: inline-block;
+        margin-top: 10px;
+        padding: 10px 20px;
+        text-decoration: none;
+        background-color: #007bff;
+        color: white;
+        border-radius: 4px;
+      }
+
+      .upload-container button:hover {
+        background-color: #0056b3;
+      }
+
+      #true {
+        display: none;
+        color: green;
+      }
+    </style>
+  </head>
+  <body>
+    <form
+      id="uploadForm"
+      action="/upload"
+      method="POST"
+      enctype="multipart/form-data"
+      class="upload-container"
+    >
+      <p id="re" style="display: none"></p>
+      <h1>Welcome to the Upload Page</h1>
+      <p>You can now upload your files:</p>
+      <div id="imageContainer">
+        <img
+          id="img"
+          src="https://via.placeholder.com/500"
+          alt="Image"
+          style="width: 500px; height: 500px"
+        />
+      </div>
+      <input
+        type="file"
+        id="fileInput"
+        name="file"
+        style="display: none"
+        accept="image/*"
+      />
+      <button
+        type="button"
+        onclick="document.getElementById('fileInput').click();"
+      >
+        Select File
+      </button>
+      <button id="cap" type="button">Capture</button>
+      <button type="submit">Submit</button>
+      <p id="res"></p>
+      <p id="image_url"></p>
+      <!-- <p id="true">REAL</p> -->
+      <a
+        href="https://docs.google.com/forms/d/e/1FAIpQLSdVZNUnI9qhJN4WUvS_chEdQqyV-iO1_KwgvlbdjlyXMWscDA/viewform?usp=sf_link"
+      >
+        <button type="button">Give us your feedback!</button>
+      </a>
+    </form>
+    <script>
+      const fetch_image = async (data) => {
+        await fetch(data['image_url'])
+          .then((response) => response.blob())
+          .then((data) => {
+            document.getElementById('img').src = URL.createObjectURL(data);
+            return data;
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+          });
+      };
+      document
+        .getElementById('uploadForm')
+        .addEventListener('submit', async (e) => {
+          e.preventDefault();
+          // if file is selected then send that with body
+          if (document.getElementById('fileInput').files.length > 0) {
+            var formData = new FormData();
+            formData.append(
+              'file',
+              document.getElementById('fileInput').files[0]
+            );
+            await fetch('/upload', {
+              method: 'POST',
+              body: formData,
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                fetch_image(data);
+                if (data['chances'] * 100 < 70) {
+                  document.getElementById('res').innerHTML = 'FAKE';
+                } else {
+                  document.getElementById('res').innerHTML = 'REAL';
+                }
+                document.getElementById('image_url').innerHTML = data['image_url'].split('/').pop()
+              })
+              .catch((error) => {
+                console.error('Error:', error);
+              });
+          } else {
+            await fetch('/upload', {
+              method: 'POST',
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                fetch_image(data);
+                if (data['chances'] * 100 < 70) {
+                  document.getElementById('res').innerHTML = 'FAKE';
+                } else {
+                  document.getElementById('res').innerHTML = 'REAL';
+                }
+                document.getElementById('image_url').innerHTML = data['image_url'].split('/').pop()
+              })
+              .catch((error) => {
+                console.error('Error:', error);
+              });
+          }
+        });
+
+      document.getElementById('cap').addEventListener('click', async (e) => {
+        await fetch('/upload', {
+          method: 'POST',
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            // clear the image and then fetch the image using given url and update it
+            fetch_image(data);
+            if (data['chances'] * 100 < 70) {
+              document.getElementById('res').innerHTML = 'FAKE';
+            } else {
+              document.getElementById('res').innerHTML = 'REAL';
+            }
+            document.getElementById('image_url').innerHTML = data['image_url'].split('/').pop()
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+          });
+      });
+    </script>
+  </body>
+</html>

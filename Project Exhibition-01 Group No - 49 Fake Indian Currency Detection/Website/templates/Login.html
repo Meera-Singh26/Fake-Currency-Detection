@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login Form</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #f3f3f3;
+      }
+
+      .login-container {
+        width: 300px;
+        background: white;
+        padding: 20px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        border-radius: 8px;
+      }
+
+      .login-container h2 {
+        margin-bottom: 20px;
+        text-align: center;
+        color: #333;
+      }
+
+      .login-container label {
+        font-size: 14px;
+        color: #333;
+      }
+
+      .login-container input {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0 20px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+
+      .login-container button {
+        width: 100%;
+        padding: 10px;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+
+      .login-container .submit-btn {
+        background-color: #4caf50;
+        color: white;
+      }
+
+      .login-container .submit-btn:hover {
+        background-color: #45a049;
+      }
+
+      .login-container .cancel-btn {
+        background-color: #f44336;
+        color: white;
+        margin-top: 10px;
+      }
+
+      .login-container .cancel-btn:hover {
+        background-color: #e53935;
+      }
+
+      .success-message {
+        display: none;
+        text-align: center;
+        color: #4caf50;
+        font-size: 16px;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-container">
+      <h2>Login</h2>
+      <form id="loginForm">
+        <label for="username">Username:</label>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          placeholder="Enter your username"
+          required
+        />
+
+        <label for="password">Password:</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          placeholder="Enter your password"
+          required
+        />
+
+        <button type="submit" class="submit-btn">Submit</button>
+      </form>
+
+      <div id="successMessage" class="success-message">
+        You have successfully logged in and now you can upload images.
+      </div>
+    </div>
+    <script>
+      document
+        .getElementById('loginForm')
+        .addEventListener('submit', async (event) => {
+          event.preventDefault();
+
+          var username = document.getElementById('username').value;
+          var password = document.getElementById('password').value;
+
+          var res = await fetch('/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, password }),
+          });
+
+          if (res.ok) {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'block';
+            window.location.href = '/';
+          } else {
+            alert('Invalid username or password');
+          }
+        });
+    </script>
+  </body>
+</html>
